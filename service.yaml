@@ -2,10 +2,13 @@ apiVersion: v1
 kind: Service
 metadata:
   name: trend-app-service
+  labels:
+    app: trend-app
 spec:
   type: LoadBalancer
   selector:
     app: trend-app
   ports:
-    - port: 80        # External port
-      targetPort: 3000 # Container port
+    - name: http
+      port: 80
+      targetPort: 3000
