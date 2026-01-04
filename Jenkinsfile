@@ -1,30 +1,43 @@
-```groovy
 pipeline {
   agent any
 
   environment {
-    IMAGE = "stalin15/trend-app"
+    IMAGE_NAME = "stalin15/trend-app"
+    DOCKER_CREDS = "dockerhub-creds"
+    GIT_CREDS = "github-creds"
   }
 
   stages {
+
     stage('Checkout') {
       steps {
-        git 'https://github.com/StalinK1/Trend.git'
+        git url: 'https://github.com/StalinK1/Trend.git',
+            branch: 'main',
+            credentialsId: "${GIT_CREDS}"
       }
     }
 
     stage('Build Docker Image') {
       steps {
-        sh 'docker build -t $IMAGE:latest .'
+        sh 'docker build -t $IMAGE_NAME:latest .'
       }
     }
 
-    stage('Push Image') {
+    stage('Docker Login') {
       steps {
-        sh '''
-          docker login -u yourusername -p yourpassword
-          docker push $IMAGE:latest
-        '''
+        withCredentials([usernamePassword(
+          credentialsId: "${DOCKER_CREDS}",
+          usernameVariable: 'DOCKER_USER',
+          passwordVariable: 'DOCKER_PASS'
+        )]) {
+          sh 'docker login -u $DOCKER_USER -p $DOCKER_PASS'
+        }
+      }
+    }
+
+    stage('Push Docker Image') {
+      steps {
+        sh 'docker push $IMAGE_NAME:latest'
       }
     }
 
@@ -37,5 +50,13 @@ pipeline {
       }
     }
   }
+
+  post {
+    success {
+      echo '✅ Pipeline executed successfully!'
+    }
+    failure {
+      echo '❌ Pipeline failed. Check logs.'
+    }
+  }
 }
-```
