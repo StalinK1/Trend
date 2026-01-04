@@ -3,8 +3,8 @@ pipeline {
 
   environment {
     IMAGE_NAME = "stalin15/trend-app"
-    DOCKER_CREDS = "dockerhub-creds"
-    GIT_CREDS = "github-creds"
+    DOCKER_CREDS = "stalin15"
+    GIT_CREDS = "StalinK1"
   }
 
   stages {
