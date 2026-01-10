@@ -64,3 +64,24 @@ resource "aws_route_table_association" "public_assoc_2" {
   subnet_id      = aws_subnet.public_subnet_2.id
   route_table_id = aws_route_table.public_rt.id
 }
+# eksctl create cluster \
+# --name trend-cluster \
+# --region us-east-2 \
+#  --nodegroup-name trend-nodes \
+# --node-type t3.medium \
+#  --nodes 2 \
+#  --nodes-min 1 \
+#  --nodes-max 3 \
+#  --managed
+
+# aws eks create-access-entry \
+#  --cluster-name trend-cluster \
+#  --principal-arn arn:aws:iam::214941489679:role/JenkinPipeline4K8s \
+#  --region us-east-2
+
+# aws eks associate-access-policy \
+#  --cluster-name trend-cluster \
+#  --principal-arn arn:aws:iam::214941489679:role/JenkinPipeline4K8s \
+#  --policy-arn arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy \
+#  --access-scope type=cluster \
+#  --region us-east-2
