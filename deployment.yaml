@@ -1,12 +1,19 @@
-apiVersion: v1
-kind: Service
+apiVersion: apps/v1
+kind: Deployment
 metadata:
-  name: trend-app-service
+  name: trend-app
 spec:
+  replicas: 2
   selector:
-    app: trend-app        # Must match the label in your Deployment
-  ports:
-    - protocol: TCP
-      port: 80          # Port exposed outside the cluster (like -p 3000)
-      targetPort: 3000      # Container port (the port your app listens on)
-  type: NodePort           # Use NodePort if you want to access via cluster nodes
+    matchLabels:
+      app: trend-app
+  template:
+    metadata:
+      labels:
+        app: trend-app
+    spec:
+      containers:
+        - name: trend-app
+          image: stalin15/trend-app:latest
+          ports:
+            - containerPort: 80
