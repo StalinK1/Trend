@@ -3,8 +3,11 @@ pipeline {
 
   environment {
     IMAGE_NAME = "stalin15/trend-app"
-    DOCKER_CREDS = "stalin15"
-    GIT_CREDS = "StalinK1"
+    
+    // AWS credentials configured in Jenkins (type: AWS Credentials)
+    AWS_CREDS = "aws-access-creds"
+    AWS_REGION = "your-aws-region"        // e.g., us-east-1
+    EKS_CLUSTER = "your-eks-cluster-name" // your EKS cluster name
   }
 
   stages {
@@ -13,7 +16,7 @@ pipeline {
       steps {
         git url: 'https://github.com/StalinK1/Trend.git',
             branch: 'main',
-            credentialsId: "${GIT_CREDS}"
+            credentialsId: 'StalinK1'
       }
     }
 
@@ -26,11 +29,13 @@ pipeline {
     stage('Docker Login') {
       steps {
         withCredentials([usernamePassword(
-          credentialsId: "${DOCKER_CREDS}",
+          credentialsId: 'stalin15',
           usernameVariable: 'DOCKER_USER',
           passwordVariable: 'DOCKER_PASS'
         )]) {
-          sh 'docker login -u $DOCKER_USER -p $DOCKER_PASS'
+          sh '''
+            echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+          '''
         }
       }
     }
@@ -38,6 +43,22 @@ pipeline {
     stage('Push Docker Image') {
       steps {
         sh 'docker push $IMAGE_NAME:latest'
+      }
+    }
+
+    stage('Configure kubectl for EKS') {
+      steps {
+        withCredentials([[
+          $class: 'AmazonWebServicesCredentialsBinding',
+          credentialsId: "${AWS_CREDS}",
+          accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+          secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
+        ]]) {
+          sh '''
+            aws eks --region $AWS_REGION update-kubeconfig --name $EKS_CLUSTER
+            kubectl get nodes
+          '''
+        }
       }
     }
 
