@@ -6,8 +6,8 @@ pipeline {
     
     // AWS credentials configured in Jenkins (type: AWS Credentials)
     AWS_CREDS = "aws-access-creds"
-    AWS_REGION = "your-aws-region"        // e.g., us-east-1
-    EKS_CLUSTER = "your-eks-cluster-name" // your EKS cluster name
+    AWS_REGION = "us-east-2"        // e.g., us-east-1
+    EKS_CLUSTER = "trend-cluster" // your EKS cluster name
   }
 
   stages {
